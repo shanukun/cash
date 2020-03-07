@@ -1,4 +1,4 @@
-./cmd/todo/mydb.pb
-./cmd/todo/todo
-./todo/todo.pb.go
+/cmd/todo/mydb.pb
+/cmd/todo/todo
+/todo/todo.pb.go
 
