@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option go_package = "github.com/shanukun/cash/cash";
+
+import "google/protobuf/empty.proto";
+
+// Data is what is stored in the cache
+message Data {
+  string key = 1;
+  string value = 2;
+  string expiration = 3;
+}
+
+message Key {
+    string key = 1;
+}
+
+message AllData {
+  repeated Data items = 1;
+}
+
+message Response {
+  bool response = 1;
+}
+
+service CacheService {
+    rpc Set (Data) returns (Data);
+    rpc Get (Key) returns (Data);
+    rpc GetByPrefix(Key) returns (AllData);
+    rpc GetAllData(google.protobuf.Empty) returns (AllData);
+    rpc DeleteKey(Key) returns (Response);
+    rpc DeleteAll(google.protobuf.Empty) returns (Response);
+}
