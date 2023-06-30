@@ -68,11 +68,12 @@ func (tree *RBTree) rightRotate(x *Node) {
 
 func (tree *RBTree) Insert(key string, value dt.AnyT) {
 	z := &Node{
-		key:   key,
-		Value: value,
-		color: BLACK,
-		left:  tree.Nil,
-		right: tree.Nil,
+		key:    key,
+		Value:  value,
+		parent: nil,
+		color:  RED,
+		left:   tree.Nil,
+		right:  tree.Nil,
 	}
 
 	var y *Node
@@ -115,6 +116,7 @@ func (tree *RBTree) insertFixup(z *Node) {
 				}
 				z.parent.color = BLACK
 				z.parent.parent.color = RED
+				tree.rightRotate(z.parent.parent)
 			}
 		} else {
 			y := z.parent.parent.left
@@ -186,8 +188,8 @@ func (tree *RBTree) Delete(key string) {
 
 func (tree *RBTree) deleteFixup(x *Node) {
 	for x != tree.Root && x.color == BLACK {
-		if x == x.parent.right {
-			w := x.parent.left
+		if x == x.parent.left {
+			w := x.parent.right
 
 			// type 1
 			if w.color == RED {
@@ -284,9 +286,22 @@ func (tree *RBTree) search(key string) *Node {
 
 func (tree *RBTree) Find(key string) (dt.AnyT, bool) {
 	item := tree.search(key)
-	if item.key == key {
+	if item != nil && item.key == key {
 		return item.Value, true
 	}
 
 	return nil, false
+}
+
+func InitRBTree() *RBTree {
+	val := dt.AnyT("99999")
+	nilNode := &Node{
+		key:    "99999",
+		Value:  val,
+		color:  false,
+		parent: nil,
+		left:   nil,
+		right:  nil,
+	}
+	return &RBTree{Nil: nilNode, Root: nilNode}
 }
