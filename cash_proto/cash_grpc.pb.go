@@ -23,11 +23,14 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CacheServiceClient interface {
-	Set(ctx context.Context, in *Data, opts ...grpc.CallOption) (*Data, error)
-	Get(ctx context.Context, in *Key, opts ...grpc.CallOption) (*Data, error)
-	GetByPrefix(ctx context.Context, in *Key, opts ...grpc.CallOption) (*AllData, error)
-	GetAllData(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*AllData, error)
+	Set(ctx context.Context, in *String, opts ...grpc.CallOption) (*Response, error)
+	Get(ctx context.Context, in *Key, opts ...grpc.CallOption) (*String, error)
 	DeleteKey(ctx context.Context, in *Key, opts ...grpc.CallOption) (*Response, error)
+	LPush(ctx context.Context, in *String, opts ...grpc.CallOption) (*Response, error)
+	RPush(ctx context.Context, in *String, opts ...grpc.CallOption) (*Response, error)
+	GetList(ctx context.Context, in *Key, opts ...grpc.CallOption) (*List, error)
+	HMSet(ctx context.Context, in *HashMapItem, opts ...grpc.CallOption) (*Response, error)
+	GetHashMap(ctx context.Context, in *Key, opts ...grpc.CallOption) (*List, error)
 	DeleteAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Response, error)
 }
 
@@ -39,8 +42,8 @@ func NewCacheServiceClient(cc grpc.ClientConnInterface) CacheServiceClient {
 	return &cacheServiceClient{cc}
 }
 
-func (c *cacheServiceClient) Set(ctx context.Context, in *Data, opts ...grpc.CallOption) (*Data, error) {
-	out := new(Data)
+func (c *cacheServiceClient) Set(ctx context.Context, in *String, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, "/CacheService/Set", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -48,27 +51,9 @@ func (c *cacheServiceClient) Set(ctx context.Context, in *Data, opts ...grpc.Cal
 	return out, nil
 }
 
-func (c *cacheServiceClient) Get(ctx context.Context, in *Key, opts ...grpc.CallOption) (*Data, error) {
-	out := new(Data)
+func (c *cacheServiceClient) Get(ctx context.Context, in *Key, opts ...grpc.CallOption) (*String, error) {
+	out := new(String)
 	err := c.cc.Invoke(ctx, "/CacheService/Get", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *cacheServiceClient) GetByPrefix(ctx context.Context, in *Key, opts ...grpc.CallOption) (*AllData, error) {
-	out := new(AllData)
-	err := c.cc.Invoke(ctx, "/CacheService/GetByPrefix", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *cacheServiceClient) GetAllData(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*AllData, error) {
-	out := new(AllData)
-	err := c.cc.Invoke(ctx, "/CacheService/GetAllData", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -78,6 +63,51 @@ func (c *cacheServiceClient) GetAllData(ctx context.Context, in *emptypb.Empty, 
 func (c *cacheServiceClient) DeleteKey(ctx context.Context, in *Key, opts ...grpc.CallOption) (*Response, error) {
 	out := new(Response)
 	err := c.cc.Invoke(ctx, "/CacheService/DeleteKey", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cacheServiceClient) LPush(ctx context.Context, in *String, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, "/CacheService/LPush", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cacheServiceClient) RPush(ctx context.Context, in *String, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, "/CacheService/RPush", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cacheServiceClient) GetList(ctx context.Context, in *Key, opts ...grpc.CallOption) (*List, error) {
+	out := new(List)
+	err := c.cc.Invoke(ctx, "/CacheService/GetList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cacheServiceClient) HMSet(ctx context.Context, in *HashMapItem, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, "/CacheService/HMSet", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cacheServiceClient) GetHashMap(ctx context.Context, in *Key, opts ...grpc.CallOption) (*List, error) {
+	out := new(List)
+	err := c.cc.Invoke(ctx, "/CacheService/GetHashMap", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -97,11 +127,14 @@ func (c *cacheServiceClient) DeleteAll(ctx context.Context, in *emptypb.Empty, o
 // All implementations must embed UnimplementedCacheServiceServer
 // for forward compatibility
 type CacheServiceServer interface {
-	Set(context.Context, *Data) (*Data, error)
-	Get(context.Context, *Key) (*Data, error)
-	GetByPrefix(context.Context, *Key) (*AllData, error)
-	GetAllData(context.Context, *emptypb.Empty) (*AllData, error)
+	Set(context.Context, *String) (*Response, error)
+	Get(context.Context, *Key) (*String, error)
 	DeleteKey(context.Context, *Key) (*Response, error)
+	LPush(context.Context, *String) (*Response, error)
+	RPush(context.Context, *String) (*Response, error)
+	GetList(context.Context, *Key) (*List, error)
+	HMSet(context.Context, *HashMapItem) (*Response, error)
+	GetHashMap(context.Context, *Key) (*List, error)
 	DeleteAll(context.Context, *emptypb.Empty) (*Response, error)
 	mustEmbedUnimplementedCacheServiceServer()
 }
@@ -110,20 +143,29 @@ type CacheServiceServer interface {
 type UnimplementedCacheServiceServer struct {
 }
 
-func (UnimplementedCacheServiceServer) Set(context.Context, *Data) (*Data, error) {
+func (UnimplementedCacheServiceServer) Set(context.Context, *String) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Set not implemented")
 }
-func (UnimplementedCacheServiceServer) Get(context.Context, *Key) (*Data, error) {
+func (UnimplementedCacheServiceServer) Get(context.Context, *Key) (*String, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
-}
-func (UnimplementedCacheServiceServer) GetByPrefix(context.Context, *Key) (*AllData, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetByPrefix not implemented")
-}
-func (UnimplementedCacheServiceServer) GetAllData(context.Context, *emptypb.Empty) (*AllData, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAllData not implemented")
 }
 func (UnimplementedCacheServiceServer) DeleteKey(context.Context, *Key) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteKey not implemented")
+}
+func (UnimplementedCacheServiceServer) LPush(context.Context, *String) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LPush not implemented")
+}
+func (UnimplementedCacheServiceServer) RPush(context.Context, *String) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RPush not implemented")
+}
+func (UnimplementedCacheServiceServer) GetList(context.Context, *Key) (*List, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetList not implemented")
+}
+func (UnimplementedCacheServiceServer) HMSet(context.Context, *HashMapItem) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HMSet not implemented")
+}
+func (UnimplementedCacheServiceServer) GetHashMap(context.Context, *Key) (*List, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHashMap not implemented")
 }
 func (UnimplementedCacheServiceServer) DeleteAll(context.Context, *emptypb.Empty) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteAll not implemented")
@@ -142,7 +184,7 @@ func RegisterCacheServiceServer(s grpc.ServiceRegistrar, srv CacheServiceServer)
 }
 
 func _CacheService_Set_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Data)
+	in := new(String)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -154,7 +196,7 @@ func _CacheService_Set_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: "/CacheService/Set",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CacheServiceServer).Set(ctx, req.(*Data))
+		return srv.(CacheServiceServer).Set(ctx, req.(*String))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -177,42 +219,6 @@ func _CacheService_Get_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CacheService_GetByPrefix_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Key)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CacheServiceServer).GetByPrefix(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/CacheService/GetByPrefix",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CacheServiceServer).GetByPrefix(ctx, req.(*Key))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CacheService_GetAllData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CacheServiceServer).GetAllData(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/CacheService/GetAllData",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CacheServiceServer).GetAllData(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _CacheService_DeleteKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Key)
 	if err := dec(in); err != nil {
@@ -227,6 +233,96 @@ func _CacheService_DeleteKey_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CacheServiceServer).DeleteKey(ctx, req.(*Key))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CacheService_LPush_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(String)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CacheServiceServer).LPush(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/CacheService/LPush",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CacheServiceServer).LPush(ctx, req.(*String))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CacheService_RPush_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(String)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CacheServiceServer).RPush(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/CacheService/RPush",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CacheServiceServer).RPush(ctx, req.(*String))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CacheService_GetList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Key)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CacheServiceServer).GetList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/CacheService/GetList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CacheServiceServer).GetList(ctx, req.(*Key))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CacheService_HMSet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HashMapItem)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CacheServiceServer).HMSet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/CacheService/HMSet",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CacheServiceServer).HMSet(ctx, req.(*HashMapItem))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CacheService_GetHashMap_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Key)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CacheServiceServer).GetHashMap(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/CacheService/GetHashMap",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CacheServiceServer).GetHashMap(ctx, req.(*Key))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -265,16 +361,28 @@ var CacheService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CacheService_Get_Handler,
 		},
 		{
-			MethodName: "GetByPrefix",
-			Handler:    _CacheService_GetByPrefix_Handler,
-		},
-		{
-			MethodName: "GetAllData",
-			Handler:    _CacheService_GetAllData_Handler,
-		},
-		{
 			MethodName: "DeleteKey",
 			Handler:    _CacheService_DeleteKey_Handler,
+		},
+		{
+			MethodName: "LPush",
+			Handler:    _CacheService_LPush_Handler,
+		},
+		{
+			MethodName: "RPush",
+			Handler:    _CacheService_RPush_Handler,
+		},
+		{
+			MethodName: "GetList",
+			Handler:    _CacheService_GetList_Handler,
+		},
+		{
+			MethodName: "HMSet",
+			Handler:    _CacheService_HMSet_Handler,
+		},
+		{
+			MethodName: "GetHashMap",
+			Handler:    _CacheService_GetHashMap_Handler,
 		},
 		{
 			MethodName: "DeleteAll",

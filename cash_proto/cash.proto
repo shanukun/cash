@@ -5,29 +5,44 @@ option go_package = "github.com/shanukun/cash/cash";
 import "google/protobuf/empty.proto";
 
 service CacheService {
-    rpc Set (Data) returns (Data);
-    rpc Get (Key) returns (Data);
-    rpc GetByPrefix(Key) returns (AllData);
-    rpc GetAllData(google.protobuf.Empty) returns (AllData);
+    rpc Set (String) returns (Response);
+    rpc Get (Key) returns (String);
     rpc DeleteKey(Key) returns (Response);
+    
+    rpc LPush(String) returns (Response);
+    rpc RPush(String) returns (Response);
+    rpc GetList(Key) returns (List);
+
+    rpc HMSet(HashMapItem) returns (Response);
+    rpc GetHashMap(Key) returns (List);
+
     rpc DeleteAll(google.protobuf.Empty) returns (Response);
 }
 
-message Data {
-  string key = 1;
-  string value = 2;
-  string expiration = 3;
+message String {
+    string key = 1;
+    string value = 2;
+    string expiration = 3;
+}
+
+message List {
+    string key = 1;
+    repeated string list = 2; 
+    string expiration = 3;
+}
+
+message HashMapItem {
+    string key = 1;
+    string field = 2;
+    string value = 3;
+    string expiration = 4;
 }
 
 message Key {
     string key = 1;
 }
 
-message AllData {
-  repeated Data data = 1;
-}
-
 message Response {
-  bool response = 1;
+    bool response = 1;
 }
 
