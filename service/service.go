@@ -2,15 +2,11 @@ package service
 
 import (
 	pb "github.com/shanukun/cash/cash_proto"
+	ds "github.com/shanukun/cash/ds"
 	"runtime"
 	"sync"
 	"time"
 )
-
-type Data struct {
-	Object     interface{}
-	Expiration int64
-}
 
 type Cache struct {
 	*cache
@@ -23,19 +19,20 @@ type worker struct {
 
 type cache struct {
 	defaultExpiration time.Duration
+	expList           map[string]int64
 	mu                sync.RWMutex
-	data              map[interface{}]interface{}
+	store             *ds.RBTree
 	worker            *worker
 	pb.UnimplementedCacheServiceServer
 }
 
 func NewCacheService(defaultExpiration, cleanupInterval time.Duration) *Cache {
-	data := make(map[interface{}]interface{})
-	return newCacheWithWorker(defaultExpiration, cleanupInterval, data)
+	store := ds.InitRBTree()
+	return newCacheWithWorker(defaultExpiration, cleanupInterval, store)
 }
 
-func newCacheWithWorker(defaultExpiration time.Duration, cleanupInterval time.Duration, data map[interface{}]interface{}) *Cache {
-	c := newCache(defaultExpiration, data)
+func newCacheWithWorker(defaultExpiration time.Duration, cleanupInterval time.Duration, store *ds.RBTree) *Cache {
+	c := newCache(defaultExpiration, store)
 	C := &Cache{c}
 	if cleanupInterval > 0 {
 		runWorker(c, cleanupInterval)
@@ -44,10 +41,11 @@ func newCacheWithWorker(defaultExpiration time.Duration, cleanupInterval time.Du
 	return C
 }
 
-func newCache(defaultExpiration time.Duration, data map[interface{}]interface{}) *cache {
+func newCache(defaultExpiration time.Duration, store *ds.RBTree) *cache {
 	c := &cache{
 		defaultExpiration: defaultExpiration,
-		data:              data,
+		store:             store,
+		expList:           make(map[string]int64),
 	}
 	return c
 }
@@ -78,19 +76,14 @@ func (w *worker) Run(c *cache) {
 	}
 }
 
-func (c *cache) delete(k interface{}) (interface{}, bool) {
-	delete(c.data, k)
-	return nil, false
-}
-
 func (c *cache) deleteExpired() {
 	now := time.Now().UnixNano()
 	c.mu.Lock()
-	for k, v := range c.data {
-		if v.(Data).Expiration > 0 && now > v.(Data).Expiration {
-			c.delete(k)
+	for k, v := range c.expList {
+		if v > 0 && now > v {
+			c.store.Delete(k)
+			delete(c.expList, k)
 		}
 	}
-
 	c.mu.Unlock()
 }
