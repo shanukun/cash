@@ -1,15 +1,18 @@
 package ds
 
+import (
+	dt "github.com/shanukun/cash/datatypes"
+)
+
 const (
 	RED   bool = true
 	BLACK bool = false
 )
 
 type Node struct {
-	key   string
-	Value interface{}
-	color bool
-
+	key    string
+	Value  dt.AnyT
+	color  bool
 	parent *Node
 	left   *Node
 	right  *Node
@@ -63,7 +66,7 @@ func (tree *RBTree) rightRotate(x *Node) {
 	x.parent = y
 }
 
-func (tree *RBTree) Insert(key string, value interface{}) {
+func (tree *RBTree) Insert(key string, value dt.AnyT) {
 	z := &Node{
 		key:   key,
 		Value: value,
@@ -279,7 +282,7 @@ func (tree *RBTree) search(key string) *Node {
 	return x
 }
 
-func (tree *RBTree) Find(key string) (interface{}, bool) {
+func (tree *RBTree) Find(key string) (dt.AnyT, bool) {
 	item := tree.search(key)
 	if item.key == key {
 		return item.Value, true
