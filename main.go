@@ -45,8 +45,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("start error %v", err)
 	}
-    fmt.Println("server running on:", address)
+	fmt.Println("server running on:", address)
 	if err := grpcServer.Serve(lis); err != nil {
-        log.Fatalf("grpc server failed: %v\n", err)
+		log.Fatalf("grpc server failed: %v\n", err)
 	}
 }
