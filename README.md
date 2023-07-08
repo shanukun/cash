@@ -29,8 +29,8 @@ Usage of cash:
 
 ## API
 
-You can find the [proto file here](https://github.com/shanukun/cash/blob/main/cash_proto/cash.proto).
-For examples checkout [demo file](https://github.com/shanukun/cash/blob/main/demo/demo.go)
+You can find the [proto file here](https://github.com/shanukun/cash/blob/master/cash_proto/cash.proto).
+For examples checkout [demo file](https://github.com/shanukun/cash/blob/master/demo/demo.go)
 
 
 ### Set
